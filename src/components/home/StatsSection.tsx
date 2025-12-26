@@ -1,4 +1,4 @@
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { RevealSection } from "@/components/ui/RevealSection";
 import { Building2, Brain, Rocket, Layers } from "lucide-react";
@@ -34,10 +34,8 @@ const stats = [
   },
 ];
 
-const AnimatedCounter = ({ value, suffix }: { value: number; suffix: string }) => {
+const AnimatedCounter = ({ value, suffix, isInView }: { value: number; suffix: string; isInView: boolean }) => {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
     if (isInView) {
@@ -61,15 +59,35 @@ const AnimatedCounter = ({ value, suffix }: { value: number; suffix: string }) =
   }, [isInView, value]);
 
   return (
-    <span ref={ref} className="gradient-text font-heading text-5xl font-bold md:text-6xl">
+    <span className="gradient-text font-heading text-5xl font-bold md:text-6xl">
       {count}{suffix}
     </span>
   );
 };
 
 export const StatsSection = () => {
+  const ref = useRef(null);
+  const [isInView, setIsInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="relative py-32">
+    <section ref={ref} className="relative py-32">
       <div className="mx-auto max-w-7xl px-6">
         <RevealSection>
           <div className="mb-16 text-center">
@@ -91,14 +109,14 @@ export const StatsSection = () => {
                 transition={{ duration: 0.3 }}
               >
                 {/* Glow effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 
                 <div className="relative z-10">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <stat.icon className="h-6 w-6" />
                   </div>
                   <div className="mb-2">
-                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                    <AnimatedCounter value={stat.value} suffix={stat.suffix} isInView={isInView} />
                   </div>
                   <h3 className="font-heading font-semibold text-foreground">
                     {stat.label}
