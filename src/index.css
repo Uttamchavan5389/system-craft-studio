@@ -46,11 +46,6 @@
     --glow-purple: 280 100% 70%;
     --glow-pink: 330 100% 60%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(180 100% 50%), hsl(280 100% 70%));
-    --gradient-surface: linear-gradient(180deg, hsl(240 10% 8%), hsl(240 10% 4%));
-    --gradient-glow: linear-gradient(135deg, hsl(180 100% 50% / 0.2), hsl(280 100% 70% / 0.2));
-
     /* Typography */
     --font-heading: 'Space Grotesk', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
@@ -59,6 +54,37 @@
     --shadow-glow-cyan: 0 0 40px hsl(180 100% 50% / 0.3);
     --shadow-glow-purple: 0 0 40px hsl(280 100% 70% / 0.3);
     --shadow-glow-mixed: 0 0 60px hsl(180 100% 50% / 0.15), 0 0 100px hsl(280 100% 70% / 0.1);
+  }
+
+  /* Light theme */
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 180 100% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 270 60% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 5% 40%;
+
+    --accent: 280 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 5% 85%;
+    --input: 240 5% 85%;
+    --ring: 180 100% 35%;
   }
 
   .dark {
@@ -89,12 +115,8 @@
 @layer components {
   /* Glass card effect */
   .glass-card {
-    @apply relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl;
-    background: linear-gradient(
-      135deg,
-      hsl(240 10% 8% / 0.8),
-      hsl(240 10% 6% / 0.6)
-    );
+    @apply relative overflow-hidden rounded-2xl border border-border/50 backdrop-blur-xl;
+    background: hsl(var(--card) / 0.8);
   }
 
   .glass-card::before {
@@ -102,8 +124,8 @@
     @apply absolute inset-0 opacity-0 transition-opacity duration-500;
     background: linear-gradient(
       135deg,
-      hsl(180 100% 50% / 0.1),
-      hsl(280 100% 70% / 0.1)
+      hsl(var(--primary) / 0.05),
+      hsl(var(--accent) / 0.05)
     );
   }
 
@@ -114,13 +136,13 @@
   /* Glow button */
   .glow-button {
     @apply relative overflow-hidden rounded-xl px-6 py-3 font-medium transition-all duration-300;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     box-shadow: var(--shadow-glow-cyan);
   }
 
   .glow-button:hover {
     @apply scale-105;
-    box-shadow: 0 0 60px hsl(180 100% 50% / 0.5), 0 0 100px hsl(280 100% 70% / 0.3);
+    box-shadow: 0 0 60px hsl(var(--primary) / 0.5), 0 0 100px hsl(var(--accent) / 0.3);
   }
 
   /* Outline glow button */
@@ -137,7 +159,7 @@
   /* Gradient text */
   .gradient-text {
     @apply bg-clip-text text-transparent;
-    background: var(--gradient-primary);
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
 
   /* Animated underline */
@@ -148,7 +170,7 @@
   .animated-underline::after {
     content: '';
     @apply absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-300;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
 
   .animated-underline:hover::after {
@@ -164,8 +186,8 @@
   /* Grid background */
   .grid-background {
     background-image: 
-      linear-gradient(hsl(240 10% 15% / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(240 10% 15% / 0.3) 1px, transparent 1px);
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
@@ -174,7 +196,7 @@
     @apply pointer-events-none absolute;
     background: radial-gradient(
       600px circle,
-      hsl(180 100% 50% / 0.08),
+      hsl(var(--primary) / 0.08),
       transparent 40%
     );
   }
@@ -183,7 +205,7 @@
     @apply pointer-events-none absolute;
     background: radial-gradient(
       500px circle,
-      hsl(280 100% 70% / 0.06),
+      hsl(var(--accent) / 0.06),
       transparent 40%
     );
   }

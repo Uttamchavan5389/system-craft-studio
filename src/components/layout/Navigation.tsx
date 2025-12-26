@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -69,27 +70,32 @@ export const Navigation = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <motion.div
-            className="hidden md:block"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Link
-              to="/contact"
-              className="rounded-xl bg-gradient-to-r from-primary to-accent px-5 py-2.5 font-medium text-primary-foreground transition-shadow duration-300 hover:shadow-[0_0_30px_hsl(180_100%_50%/0.3)]"
+          {/* Right side - Theme toggle + CTA */}
+          <div className="hidden items-center gap-3 md:flex">
+            <ThemeToggle />
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Let's Talk
-            </Link>
-          </motion.div>
+              <Link
+                to="/contact"
+                className="rounded-xl bg-gradient-to-r from-primary to-accent px-5 py-2.5 font-medium text-primary-foreground transition-shadow duration-300 hover:shadow-[0_0_30px_hsl(180_100%_50%/0.3)]"
+              >
+                Let's Talk
+              </Link>
+            </motion.div>
+          </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground md:hidden"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="flex items-center gap-3 md:hidden">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground"
+            >
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}

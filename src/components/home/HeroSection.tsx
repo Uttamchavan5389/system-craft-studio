@@ -1,16 +1,20 @@
 import { motion } from "framer-motion";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { TypewriterText, GradientText } from "@/components/ui/AnimatedText";
+import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export const HeroSection = () => {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-24">
+      {/* Particle background */}
+      <ParticleBackground />
+
       {/* Animated background elements */}
       <motion.div
         className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
         style={{
-          background: "radial-gradient(circle, hsl(180 100% 50% / 0.1) 0%, transparent 70%)",
+          background: "radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, transparent 70%)",
         }}
         animate={{
           scale: [1, 1.2, 1],
