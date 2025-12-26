@@ -55,13 +55,13 @@ const testimonials: Testimonial[] = [
 ];
 
 export const Testimonials = () => {
-  // Duplicate testimonials for infinite scroll effect
+  // Duplicate testimonials for seamless infinite scroll effect
   const duplicatedTestimonials = [...testimonials, ...testimonials];
 
   return (
-    <section className="relative overflow-hidden py-24">
+    <section className="relative overflow-hidden pt-16 pb-24">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-12 text-center">
+        <div className="mb-10 text-center">
           <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
             Client <span className="gradient-text">Testimonials</span>
           </h2>
@@ -78,15 +78,13 @@ export const Testimonials = () => {
         <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-32 bg-gradient-to-l from-background to-transparent" />
 
         <motion.div
-          className="flex gap-6"
-          animate={{
-            x: [0, -50 * testimonials.length * 24],
-          }}
+          className="flex w-max gap-6"
+          animate={{ x: ["0%", "-50%"] }}
           transition={{
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: 40,
+              duration: 55,
               ease: "linear",
             },
           }}

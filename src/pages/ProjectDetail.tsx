@@ -4,6 +4,8 @@ import { Layout } from "@/components/layout/Layout";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
+import { ProjectGallery } from "@/components/projects/ProjectGallery";
+import { projectMedia } from "@/lib/project-media";
 import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Lightbulb, Target, Wrench } from "lucide-react";
 
 const projectData: Record<string, {
@@ -279,6 +281,7 @@ const projectData: Record<string, {
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const project = slug ? projectData[slug] : null;
+  const media = slug ? projectMedia[slug] : undefined;
 
   if (!project) {
     return (
@@ -330,6 +333,28 @@ const ProjectDetail = () => {
               </p>
             </div>
           </RevealSection>
+
+          {/* Hero image */}
+          {media?.hero && (
+            <RevealSection delay={0.15}>
+              <GlowCard className="mb-12 p-2">
+                <div className="relative z-10 overflow-hidden rounded-2xl">
+                  <div className="aspect-[16/9]">
+                    <img
+                      src={media.hero.src}
+                      alt={media.hero.alt}
+                      loading="eager"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
+                </div>
+              </GlowCard>
+            </RevealSection>
+          )}
+
+          {/* Gallery */}
+          <ProjectGallery images={media?.gallery} />
 
           {/* Project Info */}
           <RevealSection delay={0.2}>
