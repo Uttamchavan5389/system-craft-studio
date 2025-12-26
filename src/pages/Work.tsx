@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -81,6 +82,23 @@ const allProjects = [
 ];
 
 const Work = () => {
+  const filters = ["All", "ERP", "AI", "Mobile", "E-commerce"] as const;
+  type Filter = (typeof filters)[number];
+
+  const [activeFilter, setActiveFilter] = useState<Filter>("All");
+
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === "All") return allProjects;
+
+    const matches = (project: (typeof allProjects)[number]) => {
+      const haystack = `${project.category} ${project.tags.join(" ")}`.toLowerCase();
+      const needle = activeFilter.toLowerCase();
+      return haystack.includes(needle);
+    };
+
+    return allProjects.filter(matches);
+  }, [activeFilter]);
+
   return (
     <Layout>
       <section className="relative min-h-screen px-6 pt-32">
@@ -100,7 +118,7 @@ const Work = () => {
                 Selected <span className="gradient-text">Work</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-                A collection of enterprise systems, AI platforms, and digital products 
+                A collection of enterprise systems, AI platforms, and digital products
                 I've designed and built — each solving real-world challenges at scale.
               </p>
             </div>
@@ -109,11 +127,12 @@ const Work = () => {
           {/* Filter badges */}
           <RevealSection delay={0.2}>
             <div className="mb-12 flex flex-wrap justify-center gap-3">
-              {["All", "ERP", "AI", "Mobile", "E-commerce"].map((filter) => (
+              {filters.map((filter) => (
                 <button
                   key={filter}
+                  onClick={() => setActiveFilter(filter)}
                   className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
-                    filter === "All"
+                    filter === activeFilter
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
                   }`}
@@ -123,10 +142,11 @@ const Work = () => {
               ))}
             </div>
           </RevealSection>
+        
 
           {/* Projects Grid */}
           <StaggerContainer className="grid gap-8 pb-20 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
-            {allProjects.map((project) => (
+            {filteredProjects.map((project) => (
               <StaggerItem key={project.slug}>
                 <Link to={`/projects/${project.slug}`}>
                   <GlowCard className="group h-full p-6">
