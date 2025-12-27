@@ -153,11 +153,11 @@ const Work = () => {
 
   return (
     <Layout>
-      <section className="relative min-h-screen px-6 pt-32">
+      <section className="relative min-h-screen px-4 pt-24 sm:px-6 sm:pt-32">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
           <RevealSection>
-            <div className="mb-16 text-center">
+            <div className="mb-10 text-center sm:mb-16">
               <motion.span
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -166,10 +166,10 @@ const Work = () => {
               >
                 Portfolio
               </motion.span>
-              <h1 className="font-heading text-4xl font-bold text-foreground md:text-5xl lg:text-6xl">
+              <h1 className="font-heading text-3xl font-bold text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
                 Selected <span className="gradient-text">Work</span>
               </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+              <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:mt-6 sm:text-lg">
                 A collection of enterprise systems, AI platforms, and digital products
                 I've designed and built — each solving real-world challenges at scale.
               </p>
@@ -178,12 +178,12 @@ const Work = () => {
 
           {/* Filter badges */}
           <RevealSection delay={0.2}>
-            <div className="mb-12 flex flex-wrap justify-center gap-3">
+            <div className="mb-8 flex flex-wrap justify-center gap-2 sm:mb-12 sm:gap-3">
               {filters.map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all sm:px-5 sm:py-2 sm:text-sm ${
                     filter === activeFilter
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
@@ -194,58 +194,57 @@ const Work = () => {
               ))}
             </div>
           </RevealSection>
-        
 
           {/* Projects Grid */}
-          <StaggerContainer className="grid gap-8 pb-20 md:grid-cols-2 lg:grid-cols-3" staggerDelay={0.1}>
+          <StaggerContainer className="grid gap-4 pb-16 sm:gap-6 md:grid-cols-2 md:gap-8 md:pb-20 lg:grid-cols-3" staggerDelay={0.1}>
             {filteredProjects.map((project) => (
               <StaggerItem key={project.slug}>
                 <Link to={`/projects/${project.slug}`}>
-                  <GlowCard className="group h-full p-6">
+                  <GlowCard className="group h-full p-4 sm:p-6">
                     <div className="relative z-10 flex h-full flex-col">
                       {/* Featured badge */}
                       {project.featured && (
-                        <span className="absolute -right-2 -top-2 rounded-full bg-gradient-to-r from-primary to-accent px-3 py-1 text-xs font-medium text-primary-foreground">
+                        <span className="absolute -right-1 -top-1 rounded-full bg-gradient-to-r from-primary to-accent px-2 py-0.5 text-[10px] font-medium text-primary-foreground sm:-right-2 sm:-top-2 sm:px-3 sm:py-1 sm:text-xs">
                           Featured
                         </span>
                       )}
 
                       {/* Project Image or Icon */}
                       {project.image ? (
-                        <div className="mb-6 overflow-hidden rounded-xl">
+                        <div className="mb-4 overflow-hidden rounded-lg sm:mb-6 sm:rounded-xl">
                           <img
                             src={project.image}
                             alt={project.title}
-                            className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-110 sm:h-32"
                           />
                         </div>
                       ) : (
-                        <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110">
-                          <project.icon className="h-7 w-7" />
+                        <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 sm:rounded-2xl">
+                          <project.icon className="h-6 w-6 sm:h-7 sm:w-7" />
                         </div>
                       )}
 
                       {/* Category */}
-                      <span className="mb-2 text-sm font-medium text-primary">
+                      <span className="mb-1 text-xs font-medium text-primary sm:mb-2 sm:text-sm">
                         {project.category}
                       </span>
 
                       {/* Title */}
-                      <h3 className="font-heading text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                      <h3 className="font-heading text-lg font-bold text-foreground transition-colors group-hover:text-primary sm:text-xl">
                         {project.title}
                       </h3>
 
                       {/* Description */}
-                      <p className="mt-3 flex-grow text-sm text-muted-foreground">
+                      <p className="mt-2 flex-grow text-xs text-muted-foreground sm:mt-3 sm:text-sm">
                         {project.description}
                       </p>
 
                       {/* Tags */}
-                      <div className="mt-6 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-1.5 sm:mt-6 sm:gap-2">
                         {project.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                            className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:px-3 sm:py-1 sm:text-xs"
                           >
                             {tag}
                           </span>
@@ -253,9 +252,9 @@ const Work = () => {
                       </div>
 
                       {/* Arrow */}
-                      <div className="mt-6 flex items-center gap-2 text-primary">
-                        <span className="text-sm font-medium">View Case Study</span>
-                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      <div className="mt-4 flex items-center gap-2 text-primary sm:mt-6">
+                        <span className="text-xs font-medium sm:text-sm">View Case Study</span>
+                        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
                       </div>
                     </div>
                   </GlowCard>
