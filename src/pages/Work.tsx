@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
-import { ArrowUpRight, ShoppingCart, Database, Bot, Smartphone, CreditCard, Instagram, Calculator, Wrench } from "lucide-react";
+import { ArrowUpRight, ShoppingCart, Database, Bot, Smartphone, CreditCard, Instagram, Calculator, Wrench, Building, Package, Truck, MessageSquare } from "lucide-react";
+import heroPtrTechnology from "@/assets/hero-ptr-technology.jpg";
+import heroPackerApp from "@/assets/hero-packer-app.jpg";
+import heroRiderApp from "@/assets/hero-rider-app.jpg";
+import heroFacebookAutomation from "@/assets/hero-facebook-automation.jpg";
 
 const allProjects = [
   {
@@ -15,6 +19,7 @@ const allProjects = [
     icon: ShoppingCart,
     tags: ["ERP", "E-commerce", "Mobile", "Logistics"],
     featured: true,
+    image: null,
   },
   {
     slug: "inventory-erp-system",
@@ -24,6 +29,7 @@ const allProjects = [
     icon: Database,
     tags: ["Dashboard", "Analytics", "Inventory", "Operations"],
     featured: true,
+    image: null,
   },
   {
     slug: "ai-automation-platform",
@@ -33,6 +39,7 @@ const allProjects = [
     icon: Bot,
     tags: ["AI Agents", "Automation", "Workflows", "Integration"],
     featured: true,
+    image: null,
   },
   {
     slug: "pos-system",
@@ -42,6 +49,47 @@ const allProjects = [
     icon: CreditCard,
     tags: ["Checkout", "Terminal", "Retail", "Payments"],
     featured: false,
+    image: null,
+  },
+  {
+    slug: "ptr-technology",
+    title: "PTR Technology",
+    category: "Enterprise Platform",
+    description: "Corporate technology platform with advanced analytics, data visualization dashboards, and enterprise-grade infrastructure.",
+    icon: Building,
+    tags: ["Enterprise", "Analytics", "Dashboard", "Technology"],
+    featured: false,
+    image: heroPtrTechnology,
+  },
+  {
+    slug: "packer-app",
+    title: "Packer App",
+    category: "Mobile Operations",
+    description: "Mobile application for warehouse packers with package management, scanning, and order verification workflows.",
+    icon: Package,
+    tags: ["Mobile", "Operations", "Warehouse", "Logistics"],
+    featured: false,
+    image: heroPackerApp,
+  },
+  {
+    slug: "rider-app",
+    title: "Rider App",
+    category: "Delivery & Logistics",
+    description: "Delivery rider mobile app with route optimization, navigation, order tracking, and real-time delivery status updates.",
+    icon: Truck,
+    tags: ["Mobile", "Delivery", "Navigation", "Logistics"],
+    featured: false,
+    image: heroRiderApp,
+  },
+  {
+    slug: "facebook-automation",
+    title: "Facebook Automation Agents",
+    category: "AI & Automation",
+    description: "AI-powered Facebook messenger automation with chatbots, workflow builder, and intelligent response generation.",
+    icon: MessageSquare,
+    tags: ["AI", "Automation", "Chatbot", "Social Media"],
+    featured: false,
+    image: heroFacebookAutomation,
   },
   {
     slug: "ai-voice-agent",
@@ -51,6 +99,7 @@ const allProjects = [
     icon: Smartphone,
     tags: ["Voice AI", "NLU", "Customer Service", "Automation"],
     featured: false,
+    image: null,
   },
   {
     slug: "instagram-automation",
@@ -60,6 +109,7 @@ const allProjects = [
     icon: Instagram,
     tags: ["Social Media", "Automation", "Analytics", "Engagement"],
     featured: false,
+    image: null,
   },
   {
     slug: "accounts-tracking",
@@ -69,6 +119,7 @@ const allProjects = [
     icon: Calculator,
     tags: ["Finance", "Invoicing", "Reports", "Tracking"],
     featured: false,
+    image: null,
   },
   {
     slug: "bike-mechanic-platform",
@@ -78,6 +129,7 @@ const allProjects = [
     icon: Wrench,
     tags: ["Marketplace", "Booking", "Service", "Mobile"],
     featured: false,
+    image: null,
   },
 ];
 
@@ -158,10 +210,20 @@ const Work = () => {
                         </span>
                       )}
 
-                      {/* Icon */}
-                      <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110">
-                        <project.icon className="h-7 w-7" />
-                      </div>
+                      {/* Project Image or Icon */}
+                      {project.image ? (
+                        <div className="mb-6 overflow-hidden rounded-xl">
+                          <img
+                            src={project.image}
+                            alt={project.title}
+                            className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                        </div>
+                      ) : (
+                        <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110">
+                          <project.icon className="h-7 w-7" />
+                        </div>
+                      )}
 
                       {/* Category */}
                       <span className="mb-2 text-sm font-medium text-primary">
