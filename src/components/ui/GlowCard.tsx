@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, forwardRef } from "react";
 
 interface GlowCardProps {
   children: ReactNode;
@@ -7,11 +7,11 @@ interface GlowCardProps {
   glowColor?: "cyan" | "purple" | "mixed";
 }
 
-export const GlowCard = ({ 
+export const GlowCard = forwardRef<HTMLDivElement, GlowCardProps>(({ 
   children, 
   className = "",
   glowColor = "mixed"
-}: GlowCardProps) => {
+}, ref) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -31,6 +31,7 @@ export const GlowCard = ({
 
   return (
     <motion.div
+      ref={ref}
       className={`glass-card group relative ${className}`}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
@@ -64,16 +65,19 @@ export const GlowCard = ({
       {children}
     </motion.div>
   );
-};
+});
+
+GlowCard.displayName = "GlowCard";
 
 interface HoverScaleCardProps {
   children: ReactNode;
   className?: string;
 }
 
-export const HoverScaleCard = ({ children, className = "" }: HoverScaleCardProps) => {
+export const HoverScaleCard = forwardRef<HTMLDivElement, HoverScaleCardProps>(({ children, className = "" }, ref) => {
   return (
     <motion.div
+      ref={ref}
       className={`relative overflow-hidden ${className}`}
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
@@ -81,4 +85,6 @@ export const HoverScaleCard = ({ children, className = "" }: HoverScaleCardProps
       {children}
     </motion.div>
   );
-};
+});
+
+HoverScaleCard.displayName = "HoverScaleCard";

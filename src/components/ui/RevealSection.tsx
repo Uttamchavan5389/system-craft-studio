@@ -1,5 +1,5 @@
 import { motion, useInView } from "framer-motion";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useRef, forwardRef } from "react";
 
 interface RevealSectionProps {
   children: ReactNode;
@@ -82,12 +82,18 @@ export const StaggerContainer = ({
   );
 };
 
-export const StaggerItem = ({ 
+interface StaggerItemProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const StaggerItem = forwardRef<HTMLDivElement, StaggerItemProps>(({ 
   children, 
   className = "" 
-}: { children: ReactNode; className?: string }) => {
+}, ref) => {
   return (
     <motion.div
+      ref={ref}
       variants={{
         hidden: { opacity: 0, y: 30 },
         visible: { 
@@ -104,4 +110,6 @@ export const StaggerItem = ({
       {children}
     </motion.div>
   );
-};
+});
+
+StaggerItem.displayName = "StaggerItem";
