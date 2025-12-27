@@ -2,6 +2,10 @@ import heroPromodeAgro from "@/assets/hero-promode-agro.jpg";
 import heroErpDashboard from "@/assets/hero-erp-dashboard.jpg";
 import heroAiPlatform from "@/assets/hero-ai-platform.jpg";
 import heroPosSystem from "@/assets/hero-pos-system.jpg";
+import heroPtrTechnology from "@/assets/hero-ptr-technology.jpg";
+import heroPackerApp from "@/assets/hero-packer-app.jpg";
+import heroRiderApp from "@/assets/hero-rider-app.jpg";
+import heroFacebookAutomation from "@/assets/hero-facebook-automation.jpg";
 
 export type ProjectImage = {
   src: string;
@@ -68,6 +72,62 @@ export const projectMedia: Record<string, ProjectMedia> = {
         src: heroPosSystem,
         alt: "POS terminal checkout UI mockup and retail dashboard",
         label: "Terminal + Admin",
+      },
+    ],
+  },
+  "ptr-technology": {
+    hero: {
+      src: heroPtrTechnology,
+      alt: "PTR Technology enterprise platform dashboard with analytics and data visualizations",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroPtrTechnology,
+        alt: "PTR Technology corporate platform interface mockup",
+        label: "Dashboard",
+      },
+    ],
+  },
+  "packer-app": {
+    hero: {
+      src: heroPackerApp,
+      alt: "Packer mobile app for warehouse operations and package management",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroPackerApp,
+        alt: "Packer app mobile interface with checklist and scan features",
+        label: "Mobile App",
+      },
+    ],
+  },
+  "rider-app": {
+    hero: {
+      src: heroRiderApp,
+      alt: "Rider delivery app with navigation and route optimization",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroRiderApp,
+        alt: "Rider app mobile interface with map and delivery tracking",
+        label: "Mobile App",
+      },
+    ],
+  },
+  "facebook-automation": {
+    hero: {
+      src: heroFacebookAutomation,
+      alt: "Facebook automation platform with AI chatbot and workflow builder",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroFacebookAutomation,
+        alt: "Facebook messenger automation dashboard with chat nodes",
+        label: "Automation Dashboard",
       },
     ],
   },

@@ -3,6 +3,8 @@ import { Layout } from "@/components/layout/Layout";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
+import { SkillsRadar } from "@/components/ui/SkillsRadar";
+import { Timeline, TimelineMobile } from "@/components/ui/Timeline";
 import { Code2, Palette, Brain, Layers, Rocket, Target, ArrowRight } from "lucide-react";
 
 const skills = [
@@ -43,6 +45,53 @@ const values = [
     icon: Brain,
     title: "AI-First Mindset",
     description: "Leveraging AI and automation to solve complex problems and create intelligent, adaptive systems.",
+  },
+];
+
+const radarSkills = [
+  { name: "UI/UX Design", value: 95 },
+  { name: "React/Next.js", value: 90 },
+  { name: "ERP Systems", value: 88 },
+  { name: "AI Integration", value: 85 },
+  { name: "Mobile Design", value: 82 },
+  { name: "Design Systems", value: 92 },
+];
+
+const experienceTimeline = [
+  {
+    year: "2024 - Present",
+    title: "Senior Product Designer",
+    company: "Freelance / Consulting",
+    description: "Leading end-to-end product design for enterprise clients. Specializing in ERP, POS, and AI automation systems.",
+    type: "work" as const,
+  },
+  {
+    year: "2022 - 2024",
+    title: "Lead UI/UX Engineer",
+    company: "Tech Solutions Inc",
+    description: "Designed and built enterprise-grade platforms including inventory management and AI workflow systems.",
+    type: "work" as const,
+  },
+  {
+    year: "2020 - 2022",
+    title: "Product Designer",
+    company: "StartupHub",
+    description: "Created user-centered designs for multiple SaaS products. Led design system implementation.",
+    type: "work" as const,
+  },
+  {
+    year: "2018 - 2020",
+    title: "UI/UX Designer",
+    company: "DigitalCraft Agency",
+    description: "Designed websites and mobile apps for diverse clients across e-commerce and fintech sectors.",
+    type: "work" as const,
+  },
+  {
+    year: "2018",
+    title: "B.Tech Computer Science",
+    company: "University of Technology",
+    description: "Graduated with focus on Human-Computer Interaction and Software Engineering.",
+    type: "education" as const,
   },
 ];
 
@@ -137,6 +186,35 @@ const About = () => {
                 >
                   <Palette className="h-8 w-8 text-accent" />
                 </motion.div>
+              </div>
+            </div>
+          </RevealSection>
+
+          {/* Skills Radar Section */}
+          <RevealSection>
+            <div className="mb-20">
+              <h2 className="mb-12 text-center font-heading text-3xl font-bold text-foreground">
+                Skill <span className="gradient-text">Proficiency</span>
+              </h2>
+              <div className="flex justify-center">
+                <SkillsRadar skills={radarSkills} size={350} />
+              </div>
+            </div>
+          </RevealSection>
+
+          {/* Experience Timeline */}
+          <RevealSection>
+            <div className="mb-20">
+              <h2 className="mb-12 text-center font-heading text-3xl font-bold text-foreground">
+                Experience <span className="gradient-text">Timeline</span>
+              </h2>
+              {/* Desktop Timeline */}
+              <div className="hidden md:block">
+                <Timeline items={experienceTimeline} />
+              </div>
+              {/* Mobile Timeline */}
+              <div className="md:hidden">
+                <TimelineMobile items={experienceTimeline} />
               </div>
             </div>
           </RevealSection>
