@@ -36,7 +36,7 @@ export const Navigation = () => {
               </span>
             </motion.div>
             <span className="font-heading text-lg font-semibold text-foreground">
-              Uttam<span className="text-primary">.</span>
+              Uttam Chavan
             </span>
           </Link>
 
