@@ -5,6 +5,10 @@ import { Layout } from "@/components/layout/Layout";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { ArrowUpRight, ShoppingCart, Database, Bot, Smartphone, CreditCard, Instagram, Calculator, Wrench, Building, Package, Truck, MessageSquare } from "lucide-react";
+import heroPromodeAgro from "@/assets/hero-promode-agro.jpg";
+import heroErpDashboard from "@/assets/hero-erp-dashboard.jpg";
+import heroAiPlatform from "@/assets/hero-ai-platform.jpg";
+import heroPosSystem from "@/assets/hero-pos-system.jpg";
 import heroPtrTechnology from "@/assets/hero-ptr-technology.jpg";
 import heroPackerApp from "@/assets/hero-packer-app.jpg";
 import heroRiderApp from "@/assets/hero-rider-app.jpg";
@@ -19,7 +23,7 @@ const allProjects = [
     icon: ShoppingCart,
     tags: ["ERP", "E-commerce", "Mobile", "Logistics"],
     featured: true,
-    image: null,
+    image: heroPromodeAgro,
   },
   {
     slug: "inventory-erp-system",
@@ -29,7 +33,7 @@ const allProjects = [
     icon: Database,
     tags: ["Dashboard", "Analytics", "Inventory", "Operations"],
     featured: true,
-    image: null,
+    image: heroErpDashboard,
   },
   {
     slug: "ai-automation-platform",
@@ -39,7 +43,7 @@ const allProjects = [
     icon: Bot,
     tags: ["AI Agents", "Automation", "Workflows", "Integration"],
     featured: true,
-    image: null,
+    image: heroAiPlatform,
   },
   {
     slug: "pos-system",
@@ -49,7 +53,7 @@ const allProjects = [
     icon: CreditCard,
     tags: ["Checkout", "Terminal", "Retail", "Payments"],
     featured: false,
-    image: null,
+    image: heroPosSystem,
   },
   {
     slug: "ptr-technology",
@@ -209,20 +213,20 @@ const Work = () => {
                         </span>
                       )}
 
-                      {/* Project Image or Icon */}
-                      {project.image ? (
-                        <div className="mb-4 overflow-hidden rounded-lg sm:mb-6 sm:rounded-xl">
+                      {/* Project Image */}
+                      <div className="mb-4 overflow-hidden rounded-lg sm:mb-6 sm:rounded-xl">
+                        {project.image ? (
                           <img
                             src={project.image}
                             alt={project.title}
                             className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-110 sm:h-32"
                           />
-                        </div>
-                      ) : (
-                        <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-14 sm:w-14 sm:rounded-2xl">
-                          <project.icon className="h-6 w-6 sm:h-7 sm:w-7" />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex h-28 w-full items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 transition-transform duration-500 group-hover:scale-110 sm:h-32">
+                            <project.icon className="h-12 w-12 text-primary/50 sm:h-14 sm:w-14" />
+                          </div>
+                        )}
+                      </div>
 
                       {/* Category */}
                       <span className="mb-1 text-xs font-medium text-primary sm:mb-2 sm:text-sm">

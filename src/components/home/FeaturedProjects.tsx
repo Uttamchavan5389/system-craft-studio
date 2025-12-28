@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { ArrowUpRight, ShoppingCart, Database, Bot } from "lucide-react";
+import heroPromodeAgro from "@/assets/hero-promode-agro.jpg";
+import heroErpDashboard from "@/assets/hero-erp-dashboard.jpg";
+import heroAiPlatform from "@/assets/hero-ai-platform.jpg";
 
 const projects = [
   {
@@ -13,6 +16,7 @@ const projects = [
     icon: ShoppingCart,
     tags: ["ERP", "E-commerce", "Mobile", "Logistics"],
     color: "cyan",
+    image: heroPromodeAgro,
   },
   {
     slug: "inventory-erp-system",
@@ -22,6 +26,7 @@ const projects = [
     icon: Database,
     tags: ["Dashboard", "Analytics", "Inventory", "Operations"],
     color: "purple",
+    image: heroErpDashboard,
   },
   {
     slug: "ai-automation-platform",
@@ -31,6 +36,7 @@ const projects = [
     icon: Bot,
     tags: ["AI Agents", "Automation", "Workflows", "Integration"],
     color: "mixed",
+    image: heroAiPlatform,
   },
 ];
 
@@ -71,9 +77,13 @@ export const FeaturedProjects = () => {
                   glowColor={project.color as "cyan" | "purple" | "mixed"}
                 >
                   <div className="relative z-10 flex h-full flex-col">
-                    {/* Icon */}
-                    <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary transition-transform duration-300 group-hover:scale-110">
-                      <project.icon className="h-7 w-7" />
+                    {/* Project Image */}
+                    <div className="mb-6 overflow-hidden rounded-xl">
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
                     </div>
 
                     {/* Category */}
