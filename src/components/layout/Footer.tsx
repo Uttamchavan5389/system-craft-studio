@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
@@ -16,9 +17,9 @@ const footerLinks = [
   { name: "Contact", path: "/contact" },
 ];
 
-export const Footer = () => {
+export const Footer = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <footer className="relative border-t border-border/50 bg-background">
+    <footer ref={ref} className="relative border-t border-border/50 bg-background">
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-transparent to-transparent" />
       
@@ -95,4 +96,6 @@ export const Footer = () => {
       </div>
     </footer>
   );
-};
+});
+
+Footer.displayName = "Footer";

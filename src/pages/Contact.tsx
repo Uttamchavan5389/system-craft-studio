@@ -5,6 +5,7 @@ import { RevealSection } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactInfo = [
   {
@@ -48,21 +49,39 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { error } = await supabase
+        .from("contact_submissions")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        });
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-      title: "Message sent!",
-      description: "Thanks for reaching out. I'll get back to you soon.",
-    });
+      if (error) throw error;
 
-    // Reset form after delay
-    setTimeout(() => {
-      setFormData({ name: "", email: "", subject: "", message: "" });
-      setIsSubmitted(false);
-    }, 3000);
+      setIsSubmitted(true);
+      toast({
+        title: "Message sent!",
+        description: "Thanks for reaching out. I'll get back to you soon.",
+      });
+
+      // Reset form after delay
+      setTimeout(() => {
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setIsSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
