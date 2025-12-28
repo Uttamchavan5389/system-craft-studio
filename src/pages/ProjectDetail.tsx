@@ -6,7 +6,8 @@ import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
 import { projectMedia } from "@/lib/project-media";
-import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Lightbulb, Target, Wrench } from "lucide-react";
+import { ProcessFlow } from "@/components/ui/ProcessFlow";
+import { ArrowLeft, ArrowRight, CheckCircle, AlertCircle, Lightbulb, Target } from "lucide-react";
 
 const projectData: Record<string, {
   title: string;
@@ -567,30 +568,35 @@ const ProjectDetail = () => {
               </GlowCard>
             </StaggerItem>
 
-            {/* Process */}
+            {/* Process Flow Diagram */}
             <StaggerItem>
-              <GlowCard className="p-8">
-                <div className="relative z-10">
-                  <div className="mb-6 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
-                      <Wrench className="h-5 w-5" />
-                    </div>
-                    <h2 className="font-heading text-2xl font-bold text-foreground">
-                      The Process
-                    </h2>
-                  </div>
-                  <ul className="space-y-3">
-                    {project.process.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="mt-1.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-secondary/20 text-xs font-medium text-secondary">
-                          {i + 1}
-                        </span>
-                        <span className="text-muted-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <h2 className="font-heading text-2xl font-bold text-foreground">
+                    Design Methodology
+                  </h2>
                 </div>
-              </GlowCard>
+                <ProcessFlow />
+                
+                {/* Process Details */}
+                <GlowCard className="p-8">
+                  <div className="relative z-10">
+                    <h3 className="mb-4 font-heading text-lg font-semibold text-foreground">
+                      Project-Specific Process
+                    </h3>
+                    <ul className="space-y-3">
+                      {project.process.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="mt-1.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
+                            {i + 1}
+                          </span>
+                          <span className="text-muted-foreground">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </GlowCard>
+              </div>
             </StaggerItem>
 
             {/* Results */}

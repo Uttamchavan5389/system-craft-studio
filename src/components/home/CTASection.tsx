@@ -5,7 +5,7 @@ import { ArrowRight, Zap } from "lucide-react";
 
 export const CTASection = () => {
   return (
-    <section className="relative py-32">
+    <section className="relative py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <RevealSection>
           <div className="glass-card relative overflow-hidden p-12 text-center md:p-20">

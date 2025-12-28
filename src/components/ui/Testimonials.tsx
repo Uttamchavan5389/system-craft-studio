@@ -59,7 +59,7 @@ export const Testimonials = () => {
   const tripleTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <section className="relative overflow-hidden pt-10 pb-16">
+    <section className="relative overflow-hidden py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-8 text-center">
           <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">

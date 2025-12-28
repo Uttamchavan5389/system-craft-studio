@@ -13,7 +13,10 @@ import heroPtrTechnology from "@/assets/hero-ptr-technology.jpg";
 import heroPackerApp from "@/assets/hero-packer-app.jpg";
 import heroRiderApp from "@/assets/hero-rider-app.jpg";
 import heroFacebookAutomation from "@/assets/hero-facebook-automation.jpg";
-
+import heroAiVoiceAgent from "@/assets/hero-ai-voice-agent.jpg";
+import heroInstagramAutomation from "@/assets/hero-instagram-automation.jpg";
+import heroAccountsTracking from "@/assets/hero-accounts-tracking.jpg";
+import heroBikeMechanic from "@/assets/hero-bike-mechanic.jpg";
 const allProjects = [
   {
     slug: "promode-agro-farms",
@@ -103,7 +106,7 @@ const allProjects = [
     icon: Smartphone,
     tags: ["Voice AI", "NLU", "Customer Service", "Automation"],
     featured: false,
-    image: null,
+    image: heroAiVoiceAgent,
   },
   {
     slug: "instagram-automation",
@@ -113,7 +116,7 @@ const allProjects = [
     icon: Instagram,
     tags: ["Social Media", "Automation", "Analytics", "Engagement"],
     featured: false,
-    image: null,
+    image: heroInstagramAutomation,
   },
   {
     slug: "accounts-tracking",
@@ -123,7 +126,7 @@ const allProjects = [
     icon: Calculator,
     tags: ["Finance", "Invoicing", "Reports", "Tracking"],
     featured: false,
-    image: null,
+    image: heroAccountsTracking,
   },
   {
     slug: "bike-mechanic-platform",
@@ -133,7 +136,7 @@ const allProjects = [
     icon: Wrench,
     tags: ["Marketplace", "Booking", "Service", "Mobile"],
     featured: false,
-    image: null,
+    image: heroBikeMechanic,
   },
 ];
 
