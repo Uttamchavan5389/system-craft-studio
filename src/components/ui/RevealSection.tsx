@@ -8,14 +8,15 @@ interface RevealSectionProps {
   direction?: "up" | "down" | "left" | "right";
 }
 
-export const RevealSection = ({ 
+export const RevealSection = forwardRef<HTMLDivElement, RevealSectionProps>(({ 
   children, 
   className = "", 
   delay = 0,
   direction = "up"
-}: RevealSectionProps) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+}, forwardedRef) => {
+  const internalRef = useRef(null);
+  const ref = forwardedRef || internalRef;
+  const isInView = useInView(internalRef, { once: true, margin: "-100px" });
 
   const directionVariants = {
     up: { y: 40 },
@@ -26,7 +27,7 @@ export const RevealSection = ({
 
   return (
     <motion.div
-      ref={ref}
+      ref={internalRef}
       initial={{ 
         opacity: 0, 
         ...directionVariants[direction]
@@ -46,7 +47,9 @@ export const RevealSection = ({
       {children}
     </motion.div>
   );
-};
+});
+
+RevealSection.displayName = "RevealSection";
 
 interface StaggerContainerProps {
   children: ReactNode;
