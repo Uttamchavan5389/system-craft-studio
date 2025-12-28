@@ -67,7 +67,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      {/* CHANGE MADE HERE: Added basename */}
+      <BrowserRouter basename="/system-craft-studio">
         <AnimatedRoutes />
       </BrowserRouter>
     </TooltipProvider>
