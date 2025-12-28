@@ -28,11 +28,15 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        # 'npm ci' is faster and cleaner than 'npm install' for CI
         run: npm ci
 
       - name: Build
         run: npm run build
+        # We map the secrets here so the build tool (Vite) can see them
+        env:
+          VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -40,7 +44,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # CRITICAL CHANGE: We upload the 'dist' folder (build output), not the root '.'
           path: './dist'
 
       - name: Deploy to GitHub Pages
