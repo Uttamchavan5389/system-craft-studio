@@ -42,7 +42,7 @@ const projects = [
 
 export const FeaturedProjects = () => {
   return (
-    <section className="relative pt-24 pb-20">
+    <section className="relative py-24 md:py-32">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent" />
 
