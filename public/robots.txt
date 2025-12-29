@@ -10,5 +10,6 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# Updated: 2025-12-29
 User-agent: *
 Allow: /
