@@ -42,32 +42,40 @@ export const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-1 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="relative px-4 py-2"
-              >
-                <motion.span
-                  className={`relative z-10 font-medium transition-colors duration-300 ${
-                    location.pathname === link.path
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
+            {navLinks.map((link) => {
+              // Check if this link is active - handle both exact match and sub-routes
+              const isActive = link.path === "/" 
+                ? location.pathname === "/"
+                : location.pathname === link.path || location.pathname.startsWith(`${link.path}/`) || 
+                  (link.path === "/work" && location.pathname.startsWith("/projects"));
+              
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="relative px-4 py-2"
                 >
-                  {link.name}
-                </motion.span>
-                {location.pathname === link.path && (
-                  <motion.div
-                    layoutId="activeNav"
-                    className="absolute inset-0 rounded-lg bg-primary/10"
-                    transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
-                  />
-                )}
-              </Link>
-            ))}
+                  <motion.span
+                    className={`relative z-10 font-medium transition-colors duration-300 ${
+                      isActive
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    whileHover={{ y: -2 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {link.name}
+                  </motion.span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 rounded-lg bg-primary/10"
+                      transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right side - Theme toggle + CTA */}
@@ -106,20 +114,27 @@ export const Navigation = () => {
           className="overflow-hidden md:hidden"
         >
           <div className="mt-2 flex flex-col gap-2 rounded-2xl border border-border/50 bg-background/95 p-4 backdrop-blur-xl">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`rounded-lg px-4 py-3 font-medium transition-colors ${
-                  location.pathname === link.path
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.path === "/" 
+                ? location.pathname === "/"
+                : location.pathname === link.path || location.pathname.startsWith(`${link.path}/`) || 
+                  (link.path === "/work" && location.pathname.startsWith("/projects"));
+              
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`rounded-lg px-4 py-3 font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
             <Link
               to="/contact"
               onClick={() => setIsOpen(false)}

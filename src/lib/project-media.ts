@@ -6,6 +6,10 @@ import heroPtrTechnology from "@/assets/hero-ptr-technology.jpg";
 import heroPackerApp from "@/assets/hero-packer-app.jpg";
 import heroRiderApp from "@/assets/hero-rider-app.jpg";
 import heroFacebookAutomation from "@/assets/hero-facebook-automation.jpg";
+import heroAiVoiceAgent from "@/assets/hero-ai-voice-agent.jpg";
+import heroInstagramAutomation from "@/assets/hero-instagram-automation.jpg";
+import heroAccountsTracking from "@/assets/hero-accounts-tracking.jpg";
+import heroBikeMechanic from "@/assets/hero-bike-mechanic.jpg";
 
 export type ProjectImage = {
   src: string;
@@ -128,6 +132,62 @@ export const projectMedia: Record<string, ProjectMedia> = {
         src: heroFacebookAutomation,
         alt: "Facebook messenger automation dashboard with chat nodes",
         label: "Automation Dashboard",
+      },
+    ],
+  },
+  "ai-voice-agent": {
+    hero: {
+      src: heroAiVoiceAgent,
+      alt: "AI Voice Agent platform with conversational AI and voice interface",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroAiVoiceAgent,
+        alt: "AI Voice Agent dashboard with call analytics",
+        label: "Voice Dashboard",
+      },
+    ],
+  },
+  "instagram-automation": {
+    hero: {
+      src: heroInstagramAutomation,
+      alt: "Instagram automation platform with scheduling and engagement tools",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroInstagramAutomation,
+        alt: "Instagram automation dashboard with post scheduler",
+        label: "Automation Dashboard",
+      },
+    ],
+  },
+  "accounts-tracking": {
+    hero: {
+      src: heroAccountsTracking,
+      alt: "Accounts tracking platform with financial dashboard and analytics",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroAccountsTracking,
+        alt: "Financial tracking dashboard with reports",
+        label: "Finance Dashboard",
+      },
+    ],
+  },
+  "bike-mechanic-platform": {
+    hero: {
+      src: heroBikeMechanic,
+      alt: "Bike mechanic service platform connecting customers with mechanics",
+      label: "Hero",
+    },
+    gallery: [
+      {
+        src: heroBikeMechanic,
+        alt: "Bike mechanic mobile app with booking interface",
+        label: "Mobile App",
       },
     ],
   },

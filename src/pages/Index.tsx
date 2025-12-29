@@ -10,13 +10,11 @@ const Index = () => {
   return (
     <Layout>
       <HeroSection />
-      <div className="space-y-0">
-        <StatsSection />
-        <FeaturedProjects />
-        <AboutPreview />
-        <Testimonials />
-        <CTASection />
-      </div>
+      <StatsSection />
+      <FeaturedProjects />
+      <AboutPreview />
+      <Testimonials />
+      <CTASection />
     </Layout>
   );
 };
