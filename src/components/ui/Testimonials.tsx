@@ -61,7 +61,15 @@ export const Testimonials = () => {
   return (
     <section className="relative overflow-hidden py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-8 text-center">
+        <div className="mb-16 text-center">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary"
+          >
+            Testimonials
+          </motion.span>
           <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
             Client <span className="gradient-text">Testimonials</span>
           </h2>

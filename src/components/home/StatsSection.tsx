@@ -91,6 +91,14 @@ export const StatsSection = () => {
       <div className="mx-auto max-w-7xl px-6">
         <RevealSection>
           <div className="mb-16 text-center">
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary"
+            >
+              Track Record
+            </motion.span>
             <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl">
               Building at Scale
             </h2>

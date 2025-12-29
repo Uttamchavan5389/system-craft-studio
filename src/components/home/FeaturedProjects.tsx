@@ -50,6 +50,14 @@ export const FeaturedProjects = () => {
         <RevealSection>
           <div className="mb-16 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
             <div>
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-4 inline-block rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary"
+              >
+                Portfolio
+              </motion.span>
               <h2 className="font-heading text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
                 Featured <span className="gradient-text">Projects</span>
               </h2>
@@ -58,13 +66,18 @@ export const FeaturedProjects = () => {
                 product design expertise.
               </p>
             </div>
-            <Link
-              to="/work"
-              className="group flex items-center gap-2 font-medium text-primary transition-colors hover:text-accent"
+            <motion.div
+              whileHover={{ x: 5 }}
+              transition={{ duration: 0.2 }}
             >
-              View all work
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </Link>
+              <Link
+                to="/work"
+                className="group flex items-center gap-2 font-medium text-primary transition-colors hover:text-accent"
+              >
+                View all work
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </motion.div>
           </div>
         </RevealSection>
 
