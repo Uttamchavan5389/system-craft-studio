@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
+import { RevealSection } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { ArrowUpRight, ShoppingCart, Database, Bot, Smartphone, CreditCard, Instagram, Calculator, Wrench, Building, Package, Truck, MessageSquare } from "lucide-react";
 import heroPromodeAgro from "@/assets/hero-promode-agro.jpg";
@@ -183,92 +183,145 @@ const Work = () => {
             </div>
           </RevealSection>
 
-          {/* Filter badges */}
+          {/* Interactive Filter badges with animated indicator */}
           <RevealSection delay={0.2}>
             <div className="mb-8 flex flex-wrap justify-center gap-2 sm:mb-12 sm:gap-3">
-              {filters.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all sm:px-5 sm:py-2 sm:text-sm ${
-                    filter === activeFilter
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
+              <LayoutGroup>
+                {filters.map((filter) => (
+                  <motion.button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className="relative rounded-full px-4 py-1.5 text-xs font-medium transition-colors sm:px-5 sm:py-2 sm:text-sm"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {filter === activeFilter && (
+                      <motion.div
+                        layoutId="activeFilterBg"
+                        className="absolute inset-0 rounded-full bg-primary"
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    <span
+                      className={`relative z-10 ${
+                        filter === activeFilter
+                          ? "text-primary-foreground"
+                          : "text-muted-foreground hover:text-primary"
+                      }`}
+                    >
+                      {filter}
+                    </span>
+                  </motion.button>
+                ))}
+              </LayoutGroup>
             </div>
           </RevealSection>
 
-          {/* Projects Grid */}
-          <StaggerContainer className="grid gap-4 pb-16 sm:gap-6 md:grid-cols-2 md:gap-8 md:pb-20 lg:grid-cols-3" staggerDelay={0.1}>
-            {filteredProjects.map((project) => (
-              <StaggerItem key={project.slug}>
-                <Link to={`/projects/${project.slug}`}>
-                  <GlowCard className="group h-full p-4 sm:p-6">
-                    <div className="relative z-10 flex h-full flex-col">
-                      {/* Featured badge */}
-                      {project.featured && (
-                        <span className="absolute -right-1 -top-1 rounded-full bg-gradient-to-r from-primary to-accent px-2 py-0.5 text-[10px] font-medium text-primary-foreground sm:-right-2 sm:-top-2 sm:px-3 sm:py-1 sm:text-xs">
-                          Featured
-                        </span>
-                      )}
+          {/* Projects Grid with animated transitions */}
+          <LayoutGroup>
+            <motion.div 
+              layout
+              className="grid gap-4 pb-16 sm:gap-6 md:grid-cols-2 md:gap-8 md:pb-20 lg:grid-cols-3"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProjects.map((project, index) => (
+                  <motion.div
+                    key={project.slug}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                    transition={{ 
+                      duration: 0.4, 
+                      delay: index * 0.05,
+                      layout: { duration: 0.3 }
+                    }}
+                  >
+                    <Link to={`/projects/${project.slug}`}>
+                      <GlowCard className="group h-full p-4 sm:p-6">
+                        <div className="relative z-10 flex h-full flex-col">
+                          {/* Featured badge */}
+                          {project.featured && (
+                            <motion.span 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute -right-1 -top-1 rounded-full bg-gradient-to-r from-primary to-accent px-2 py-0.5 text-[10px] font-medium text-primary-foreground sm:-right-2 sm:-top-2 sm:px-3 sm:py-1 sm:text-xs"
+                            >
+                              Featured
+                            </motion.span>
+                          )}
 
-                      {/* Project Image */}
-                      <div className="mb-4 overflow-hidden rounded-lg sm:mb-6 sm:rounded-xl">
-                        {project.image ? (
-                          <img
-                            src={project.image}
-                            alt={project.title}
-                            className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-110 sm:h-32"
-                          />
-                        ) : (
-                          <div className="flex h-28 w-full items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 transition-transform duration-500 group-hover:scale-110 sm:h-32">
-                            <project.icon className="h-12 w-12 text-primary/50 sm:h-14 sm:w-14" />
+                          {/* Project Image with hover effect */}
+                          <div className="mb-4 overflow-hidden rounded-lg sm:mb-6 sm:rounded-xl">
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              transition={{ duration: 0.4 }}
+                            >
+                              {project.image ? (
+                                <img
+                                  src={project.image}
+                                  alt={project.title}
+                                  className="h-32 w-full object-cover sm:h-40"
+                                />
+                              ) : (
+                                <div className="flex h-32 w-full items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 sm:h-40">
+                                  <project.icon className="h-12 w-12 text-primary/50 sm:h-14 sm:w-14" />
+                                </div>
+                              )}
+                            </motion.div>
                           </div>
-                        )}
-                      </div>
 
-                      {/* Category */}
-                      <span className="mb-1 text-xs font-medium text-primary sm:mb-2 sm:text-sm">
-                        {project.category}
-                      </span>
-
-                      {/* Title */}
-                      <h3 className="font-heading text-lg font-bold text-foreground transition-colors group-hover:text-primary sm:text-xl">
-                        {project.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="mt-2 flex-grow text-xs text-muted-foreground sm:mt-3 sm:text-sm">
-                        {project.description}
-                      </p>
-
-                      {/* Tags */}
-                      <div className="mt-4 flex flex-wrap gap-1.5 sm:mt-6 sm:gap-2">
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:px-3 sm:py-1 sm:text-xs"
-                          >
-                            {tag}
+                          {/* Category */}
+                          <span className="mb-1 text-xs font-medium text-primary sm:mb-2 sm:text-sm">
+                            {project.category}
                           </span>
-                        ))}
-                      </div>
 
-                      {/* Arrow */}
-                      <div className="mt-4 flex items-center gap-2 text-primary sm:mt-6">
-                        <span className="text-xs font-medium sm:text-sm">View Case Study</span>
-                        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
-                      </div>
-                    </div>
-                  </GlowCard>
-                </Link>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+                          {/* Title */}
+                          <h3 className="font-heading text-lg font-bold text-foreground transition-colors group-hover:text-primary sm:text-xl">
+                            {project.title}
+                          </h3>
+
+                          {/* Description */}
+                          <p className="mt-2 flex-grow text-xs text-muted-foreground sm:mt-3 sm:text-sm">
+                            {project.description}
+                          </p>
+
+                          {/* Tags with stagger animation */}
+                          <div className="mt-4 flex flex-wrap gap-1.5 sm:mt-6 sm:gap-2">
+                            {project.tags.slice(0, 3).map((tag, tagIndex) => (
+                              <motion.span
+                                key={tag}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: tagIndex * 0.1 }}
+                                className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:px-3 sm:py-1 sm:text-xs"
+                              >
+                                {tag}
+                              </motion.span>
+                            ))}
+                          </div>
+
+                          {/* Arrow with hover animation */}
+                          <motion.div 
+                            className="mt-4 flex items-center gap-2 text-primary sm:mt-6"
+                            whileHover={{ x: 5 }}
+                          >
+                            <span className="text-xs font-medium sm:text-sm">View Case Study</span>
+                            <motion.div
+                              whileHover={{ rotate: 45 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            </motion.div>
+                          </motion.div>
+                        </div>
+                      </GlowCard>
+                    </Link>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </LayoutGroup>
         </div>
       </section>
     </Layout>
