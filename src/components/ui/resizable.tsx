@@ -1,3 +1,4 @@
+// Updated: 2025-12-29
 import { GripVertical } from "lucide-react";
 import * as ResizablePrimitive from "react-resizable-panels";
 

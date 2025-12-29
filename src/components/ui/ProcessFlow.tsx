@@ -1,3 +1,4 @@
+// Updated: 2025-12-29
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Search, Users, PenTool, CheckCircle, Rocket } from "lucide-react";

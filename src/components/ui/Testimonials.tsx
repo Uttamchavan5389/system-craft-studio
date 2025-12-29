@@ -1,3 +1,4 @@
+// Updated: 2025-12-29
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 

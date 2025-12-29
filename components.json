@@ -1,5 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
+  "_updated": "2025-12-29",
   "style": "default",
   "rsc": false,
   "tsx": true,
