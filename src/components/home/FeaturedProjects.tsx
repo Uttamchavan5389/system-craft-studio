@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { RevealSection, StaggerContainer, StaggerItem } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
@@ -6,6 +6,7 @@ import { ArrowUpRight, ShoppingCart, Database, Bot } from "lucide-react";
 import heroPromodeAgro from "@/assets/hero-promode-agro.jpg";
 import heroErpDashboard from "@/assets/hero-erp-dashboard.jpg";
 import heroAiPlatform from "@/assets/hero-ai-platform.jpg";
+import { useRef } from "react";
 
 const projects = [
   {
@@ -41,14 +42,36 @@ const projects = [
 ];
 
 export const FeaturedProjects = () => {
-  return (
-    <section className="relative py-24 md:py-32">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent" />
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Parallax scroll animations
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
 
-      <div className="relative mx-auto max-w-7xl px-6">
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0.8]);
+
+  return (
+    <motion.section 
+      ref={sectionRef}
+      className="relative pt-8 pb-12 md:pt-12 md:pb-16"
+      style={{ opacity }}
+    >
+      {/* Background gradient with parallax */}
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent"
+        style={{ y: backgroundY }}
+      />
+
+      <motion.div 
+        className="relative mx-auto max-w-7xl px-6"
+        style={{ y: contentY }}
+      >
         <RevealSection>
-          <div className="mb-16 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
+          <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
             <div>
               <motion.span
                 initial={{ opacity: 0, y: 10 }}
@@ -141,7 +164,7 @@ export const FeaturedProjects = () => {
             </StaggerItem>
           ))}
         </StaggerContainer>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 };
