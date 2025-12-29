@@ -1,7 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { RevealSection } from "@/components/ui/RevealSection";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { Palette, Code, Lightbulb, Rocket } from "lucide-react";
+import { useRef } from "react";
 
 const skills = [
   {
@@ -27,13 +28,32 @@ const skills = [
 ];
 
 export const AboutPreview = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Parallax scroll animations
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+
+  const leftContentY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const rightContentY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0.8]);
+
   return (
-    <section className="relative py-24 md:py-32">
+    <motion.section 
+      ref={sectionRef}
+      className="relative pt-12 pb-8 md:pt-16 md:pb-12"
+      style={{ opacity }}
+    >
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Left side - Text content */}
           <RevealSection>
-            <div className="flex flex-col justify-center">
+            <motion.div 
+              className="flex flex-col justify-center"
+              style={{ y: leftContentY }}
+            >
               <span className="mb-4 inline-block w-fit rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
                 About Me
               </span>
@@ -43,7 +63,7 @@ export const AboutPreview = () => {
                   {" "}Experiences
                 </span>
               </h2>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
                 I'm Uttam Chavan, a passionate Product Designer and UI/UX Engineer 
                 with a focus on creating meaningful digital experiences. I combine 
                 design thinking with technical expertise to build products that 
@@ -54,15 +74,18 @@ export const AboutPreview = () => {
                 applications, I bring a holistic approach to every project—from 
                 research and strategy to pixel-perfect implementation.
               </p>
-              <GlowButton href="/about" variant="outline" className="mt-8 w-fit">
+              <GlowButton href="/about" variant="outline" className="mt-6 w-fit">
                 Learn More About Me
               </GlowButton>
-            </div>
+            </motion.div>
           </RevealSection>
 
           {/* Right side - Skills grid */}
           <RevealSection delay={0.2}>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <motion.div 
+              className="grid gap-3 sm:grid-cols-2"
+              style={{ y: rightContentY }}
+            >
               {skills.map((skill, index) => (
                 <motion.div
                   key={skill.title}
@@ -86,10 +109,10 @@ export const AboutPreview = () => {
                   </div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </RevealSection>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };

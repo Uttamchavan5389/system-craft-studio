@@ -1,24 +1,41 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { TypewriterText, GradientText } from "@/components/ui/AnimatedText";
 import { ParticleBackground } from "@/components/ui/ParticleBackground";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useRef } from "react";
 
 export const HeroSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Parallax transforms for background elements
+  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const backgroundOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.2, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.3]);
+
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-24">
+    <section 
+      ref={sectionRef}
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-24"
+    >
       {/* Particle background */}
       <ParticleBackground />
 
-      {/* Animated background elements */}
+      {/* Animated background elements with parallax */}
       <motion.div
-        className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
+        className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background: "radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, transparent 70%)",
+          y: backgroundY,
+          opacity: backgroundOpacity,
         }}
         animate={{
           scale: [1, 1.2, 1],
-          opacity: [0.2, 0.3, 0.2],
         }}
         transition={{
           duration: 8,
@@ -27,7 +44,13 @@ export const HeroSection = () => {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-5xl text-center">
+      <motion.div 
+        className="relative z-10 mx-auto max-w-5xl text-center"
+        style={{
+          y: contentY,
+          opacity: contentOpacity,
+        }}
+      >
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -111,7 +134,7 @@ export const HeroSection = () => {
             />
           </motion.div>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 };
