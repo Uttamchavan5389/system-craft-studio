@@ -5,7 +5,6 @@ import { RevealSection } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const contactInfo = [
   {
@@ -50,14 +49,15 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from("contact_submissions")
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-        });
+      // Lazy-load the backend client so a missing config can't blank the entire site.
+      const { supabase } = await import("@/integrations/supabase/client");
+
+      const { error } = await supabase.from("contact_submissions").insert({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
 
       if (error) throw error;
 

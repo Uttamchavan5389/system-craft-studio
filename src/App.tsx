@@ -4,12 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import Index from "./pages/Index";
-import Work from "./pages/Work";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import ProjectDetail from "./pages/ProjectDetail";
-import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+
+const Index = lazy(() => import("./pages/Index"));
+const Work = lazy(() => import("./pages/Work"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
