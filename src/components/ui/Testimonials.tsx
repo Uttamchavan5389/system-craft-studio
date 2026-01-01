@@ -60,7 +60,7 @@ export const Testimonials = () => {
   const tripleTestimonials = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
+    <section className="relative overflow-hidden py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-16 text-center">
           <motion.span
