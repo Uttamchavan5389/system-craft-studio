@@ -57,7 +57,7 @@ export const FeaturedProjects = () => {
   return (
     <motion.section 
       ref={sectionRef}
-      className="relative pt-8 pb-12 md:pt-12 md:pb-16"
+      className="relative py-20 md:py-28"
       style={{ opacity }}
     >
       {/* Background gradient with parallax */}

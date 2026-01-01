@@ -43,7 +43,7 @@ export const AboutPreview = () => {
   return (
     <motion.section 
       ref={sectionRef}
-      className="relative pt-12 pb-8 md:pt-16 md:pb-12"
+      className="relative py-20 md:py-28"
       style={{ opacity }}
     >
       <div className="mx-auto max-w-7xl px-6">
