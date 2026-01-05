@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -6,7 +6,6 @@ import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { RevealSection } from "@/components/ui/RevealSection";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { 
   Mail, 
   User, 
@@ -15,9 +14,10 @@ import {
   Download, 
   LogOut, 
   RefreshCw,
-  Inbox
+  Inbox,
+  AlertCircle
 } from "lucide-react";
-import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import type { User as SupabaseUser, Session, SupabaseClient } from "@supabase/supabase-js";
 
 interface ContactSubmission {
   id: string;
@@ -34,41 +34,61 @@ const Admin = () => {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [backendError, setBackendError] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (!session?.user) {
-        navigate("/auth");
-      } else {
-        // Check admin role after auth state change
-        setTimeout(() => {
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    const init = async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        clientRef.current = supabase;
+
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (!session?.user) {
+            navigate("/auth");
+          } else {
+            setTimeout(() => {
+              checkAdminRole(session.user.id);
+            }, 0);
+          }
+        });
+        subscription = data.subscription;
+
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (!session?.user) {
+          navigate("/auth");
+        } else {
           checkAdminRole(session.user.id);
-        }, 0);
+        }
+      } catch (err) {
+        console.error("Backend init error:", err);
+        setBackendError(true);
+        setIsLoading(false);
       }
-    });
+    };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (!session?.user) {
-        navigate("/auth");
-      } else {
-        checkAdminRole(session.user.id);
-      }
-    });
+    init();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [navigate]);
 
   const checkAdminRole = async (userId: string) => {
+    if (!clientRef.current) return;
+    
     try {
-      const { data, error } = await supabase.rpc("has_role", {
+      const { data, error } = await clientRef.current.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
       });
@@ -94,9 +114,11 @@ const Admin = () => {
   };
 
   const fetchSubmissions = async () => {
+    if (!clientRef.current) return;
+    
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await clientRef.current
         .from("contact_submissions")
         .select("*")
         .order("created_at", { ascending: false });
@@ -115,7 +137,9 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (clientRef.current) {
+      await clientRef.current.auth.signOut();
+    }
     navigate("/");
   };
 
@@ -154,6 +178,29 @@ const Admin = () => {
       description: `${submissions.length} submissions exported to CSV`,
     });
   };
+
+  if (backendError) {
+    return (
+      <Layout>
+        <section className="flex min-h-screen items-center justify-center px-6">
+          <GlowCard className="max-w-md p-8 text-center">
+            <div className="relative z-10">
+              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+              <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
+                Backend Unavailable
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Admin panel requires backend configuration. Please contact the site owner.
+              </p>
+              <GlowButton href="/" variant="primary" className="mt-6">
+                Go Home
+              </GlowButton>
+            </div>
+          </GlowCard>
+        </section>
+      </Layout>
+    );
+  }
 
   if (!user) {
     return (

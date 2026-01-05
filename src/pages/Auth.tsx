@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -7,9 +7,9 @@ import { GlowButton } from "@/components/ui/GlowButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
+import { Mail, Lock, LogIn, UserPlus, AlertCircle } from "lucide-react";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -22,23 +22,45 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [backendError, setBackendError] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        navigate("/admin");
-      }
-    });
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/admin");
-      }
-    });
+    const init = async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        clientRef.current = supabase;
 
-    return () => subscription.unsubscribe();
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+          if (session?.user) {
+            // Bootstrap admin for the first user
+            supabase.rpc("bootstrap_admin").then(() => {
+              navigate("/admin");
+            });
+          }
+        });
+        subscription = data.subscription;
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.rpc("bootstrap_admin");
+          navigate("/admin");
+        }
+      } catch (err) {
+        console.error("Backend init error:", err);
+        setBackendError(true);
+      }
+    };
+
+    init();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,7 +78,13 @@ const Auth = () => {
       return;
     }
 
+    if (!clientRef.current) {
+      toast({ title: "Error", description: "Backend not available", variant: "destructive" });
+      return;
+    }
+
     setIsLoading(true);
+    const supabase = clientRef.current;
 
     try {
       if (isLogin) {
@@ -73,7 +101,7 @@ const Auth = () => {
         if (error) throw error;
         toast({
           title: "Account created!",
-          description: "Check your email to confirm your account.",
+          description: "You are now logged in.",
         });
       }
     } catch (error: any) {
@@ -86,6 +114,29 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  if (backendError) {
+    return (
+      <Layout>
+        <section className="flex min-h-screen items-center justify-center px-6 pt-24 pb-16">
+          <GlowCard className="max-w-md p-8 text-center">
+            <div className="relative z-10">
+              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+              <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
+                Backend Unavailable
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Authentication requires backend configuration. Please contact the site owner.
+              </p>
+              <GlowButton href="/" variant="primary" className="mt-6">
+                Go Home
+              </GlowButton>
+            </div>
+          </GlowCard>
+        </section>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
