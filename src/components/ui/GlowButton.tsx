@@ -5,12 +5,14 @@ import { Link } from "react-router-dom";
 
 interface GlowButtonProps {
   children: ReactNode;
-  variant?: "primary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
   href?: string;
   onClick?: () => void;
   className?: string;
   external?: boolean;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 export const GlowButton = ({
@@ -21,6 +23,8 @@ export const GlowButton = ({
   onClick,
   className = "",
   external = false,
+  disabled = false,
+  type = "button",
 }: GlowButtonProps) => {
   const sizeClasses = {
     sm: "px-4 py-2 text-sm",
@@ -30,6 +34,7 @@ export const GlowButton = ({
 
   const variantClasses = {
     primary: "bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium",
+    secondary: "bg-muted text-foreground font-medium hover:bg-muted/80",
     outline: "border border-primary/50 text-primary bg-transparent hover:bg-primary/10",
     ghost: "text-foreground hover:text-primary bg-transparent",
   };
@@ -38,6 +43,7 @@ export const GlowButton = ({
     relative inline-flex items-center justify-center gap-2 
     rounded-xl font-heading tracking-tight
     transition-all duration-300 ease-out
+    ${disabled ? "opacity-50 cursor-not-allowed" : ""}
     ${sizeClasses[size]}
     ${variantClasses[variant]}
     ${className}
@@ -73,7 +79,7 @@ export const GlowButton = ({
   }
 
   return (
-    <button onClick={onClick} className="appearance-none">
+    <button type={type} onClick={onClick} disabled={disabled} className="appearance-none">
       {content}
     </button>
   );
