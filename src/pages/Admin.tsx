@@ -35,6 +35,7 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [backendError, setBackendError] = useState(false);
+  const [backendErrorMessage, setBackendErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const clientRef = useRef<SupabaseClient | null>(null);
@@ -44,13 +45,25 @@ const Admin = () => {
 
     const init = async () => {
       try {
+        const urlOk = Boolean(import.meta.env.VITE_SUPABASE_URL);
+        const keyOk = Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
+
+        if (!urlOk || !keyOk) {
+          setBackendErrorMessage(
+            "Missing backend env vars (VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY)."
+          );
+          setBackendError(true);
+          setIsLoading(false);
+          return;
+        }
+
         const { supabase } = await import("@/integrations/supabase/client");
         clientRef.current = supabase;
 
         const { data } = supabase.auth.onAuthStateChange((event, session) => {
           setSession(session);
           setUser(session?.user ?? null);
-          
+
           if (!session?.user) {
             navigate("/auth");
           } else {
@@ -61,16 +74,19 @@ const Admin = () => {
         });
         subscription = data.subscription;
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (!session?.user) {
           navigate("/auth");
         } else {
           checkAdminRole(session.user.id);
         }
       } catch (err) {
+        setBackendErrorMessage(err instanceof Error ? err.message : String(err));
         console.error("Backend init error:", err);
         setBackendError(true);
         setIsLoading(false);
@@ -190,7 +206,12 @@ const Admin = () => {
                 Backend Unavailable
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Admin panel requires backend configuration. Please contact the site owner.
+                {backendErrorMessage ??
+                  "Admin panel requires backend configuration. Please contact the site owner."}
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Env status: URL={Boolean(import.meta.env.VITE_SUPABASE_URL) ? "ok" : "missing"},
+                KEY={Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) ? "ok" : "missing"}
               </p>
               <GlowButton href="/" variant="primary" className="mt-6">
                 Go Home

@@ -23,6 +23,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [backendError, setBackendError] = useState(false);
+  const [backendErrorMessage, setBackendErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const clientRef = useRef<SupabaseClient | null>(null);
@@ -32,32 +33,52 @@ const Auth = () => {
 
     const init = async () => {
       try {
-        const { supabase } = await import("@/integrations/supabase/client");
-        
-        // Check if supabase client was properly initialized
-        if (!supabase) {
+        const urlOk = Boolean(import.meta.env.VITE_SUPABASE_URL);
+        const keyOk = Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
+
+        if (!urlOk || !keyOk) {
+          setBackendErrorMessage(
+            "Missing backend env vars (VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY)."
+          );
           setBackendError(true);
           return;
         }
-        
+
+        const { supabase } = await import("@/integrations/supabase/client");
         clientRef.current = supabase;
 
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
           if (session?.user) {
-            // Bootstrap admin for the first user
-            supabase.rpc("bootstrap_admin").then(() => {
-              navigate("/admin");
-            });
+            // Defer backend calls to avoid deadlocks in auth callback
+            setTimeout(() => {
+              (async () => {
+                try {
+                  await supabase.rpc("bootstrap_admin");
+                } catch {
+                  // ignore
+                }
+                navigate("/admin");
+              })();
+            }, 0);
           }
         });
         subscription = data.subscription;
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         if (session?.user) {
-          await supabase.rpc("bootstrap_admin");
+          // If bootstrap fails (e.g., missing function on a different backend), don't block login.
+          try {
+            await supabase.rpc("bootstrap_admin");
+          } catch {
+            // ignore
+          }
           navigate("/admin");
         }
       } catch (err) {
+        setBackendErrorMessage(err instanceof Error ? err.message : String(err));
         console.error("Backend init error:", err);
         setBackendError(true);
       }
@@ -133,7 +154,12 @@ const Auth = () => {
                 Backend Unavailable
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Authentication requires backend configuration. Please contact the site owner.
+                {backendErrorMessage ??
+                  "Authentication requires backend configuration. Please contact the site owner."}
+              </p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Env status: URL={Boolean(import.meta.env.VITE_SUPABASE_URL) ? "ok" : "missing"},
+                KEY={Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) ? "ok" : "missing"}
               </p>
               <GlowButton href="/" variant="primary" className="mt-6">
                 Go Home
