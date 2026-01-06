@@ -33,6 +33,13 @@ const Auth = () => {
     const init = async () => {
       try {
         const { supabase } = await import("@/integrations/supabase/client");
+        
+        // Check if supabase client was properly initialized
+        if (!supabase) {
+          setBackendError(true);
+          return;
+        }
+        
         clientRef.current = supabase;
 
         const { data } = supabase.auth.onAuthStateChange((event, session) => {
