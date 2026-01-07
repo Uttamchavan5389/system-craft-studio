@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, LogIn, UserPlus, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getBackendClient } from "@/lib/backendClient";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -33,7 +34,7 @@ const Auth = () => {
 
     const init = async () => {
       try {
-        const { supabase } = await import("@/integrations/supabase/client");
+        const supabase = getBackendClient();
         clientRef.current = supabase;
 
         const { data } = supabase.auth.onAuthStateChange((_event, session) => {

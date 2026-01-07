@@ -6,18 +6,19 @@ import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { RevealSection } from "@/components/ui/RevealSection";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Mail, 
-  User, 
-  Calendar, 
-  FileText, 
-  Download, 
-  LogOut, 
+import {
+  Mail,
+  User,
+  Calendar,
+  FileText,
+  Download,
+  LogOut,
   RefreshCw,
   Inbox,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import type { User as SupabaseUser, Session, SupabaseClient } from "@supabase/supabase-js";
+import { getBackendClient } from "@/lib/backendClient";
 
 interface ContactSubmission {
   id: string;
@@ -45,7 +46,7 @@ const Admin = () => {
 
     const init = async () => {
       try {
-        const { supabase } = await import("@/integrations/supabase/client");
+        const supabase = getBackendClient();
         clientRef.current = supabase;
 
         const { data } = supabase.auth.onAuthStateChange((event, session) => {
