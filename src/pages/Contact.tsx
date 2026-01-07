@@ -5,6 +5,7 @@ import { RevealSection } from "@/components/ui/RevealSection";
 import { GlowCard } from "@/components/ui/GlowCard";
 import { Mail, Phone, MapPin, Linkedin, Github, Twitter, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { backendHttp } from "@/lib/backendClient";
 
 const contactInfo = [
   {
