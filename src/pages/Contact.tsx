@@ -49,17 +49,28 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Lazy-load the backend client so a missing config can't blank the entire site.
-      const { supabase } = await import("@/integrations/supabase/client");
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+          }),
+        }
+      );
 
-      const { error } = await supabase.from("contact_submissions").insert({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
-      });
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send message");
+      }
 
       setIsSubmitted(true);
       toast({
@@ -72,11 +83,11 @@ const Contact = () => {
         setFormData({ name: "", email: "", subject: "", message: "" });
         setIsSubmitted(false);
       }, 3000);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error submitting form:", error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
         variant: "destructive",
       });
     } finally {

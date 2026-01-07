@@ -33,17 +33,6 @@ const Auth = () => {
 
     const init = async () => {
       try {
-        const urlOk = Boolean(import.meta.env.VITE_SUPABASE_URL);
-        const keyOk = Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
-
-        if (!urlOk || !keyOk) {
-          setBackendErrorMessage(
-            "Missing backend env vars (VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY)."
-          );
-          setBackendError(true);
-          return;
-        }
-
         const { supabase } = await import("@/integrations/supabase/client");
         clientRef.current = supabase;
 
@@ -156,10 +145,6 @@ const Auth = () => {
               <p className="mt-2 text-muted-foreground">
                 {backendErrorMessage ??
                   "Authentication requires backend configuration. Please contact the site owner."}
-              </p>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Env status: URL={Boolean(import.meta.env.VITE_SUPABASE_URL) ? "ok" : "missing"},
-                KEY={Boolean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) ? "ok" : "missing"}
               </p>
               <GlowButton href="/" variant="primary" className="mt-6">
                 Go Home
