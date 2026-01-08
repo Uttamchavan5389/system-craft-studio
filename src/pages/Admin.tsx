@@ -16,6 +16,9 @@ import {
   RefreshCw,
   Inbox,
   AlertCircle,
+  Settings,
+  Save,
+  MailCheck,
 } from "lucide-react";
 import type { User as SupabaseUser, Session, SupabaseClient } from "@supabase/supabase-js";
 import { getBackendClient } from "@/lib/backendClient";
@@ -29,6 +32,12 @@ interface ContactSubmission {
   created_at: string;
 }
 
+interface NotificationSettings {
+  enabled: boolean;
+  recipient_email: string;
+  cc_emails: string[];
+}
+
 const Admin = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -37,6 +46,14 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [backendError, setBackendError] = useState(false);
   const [backendErrorMessage, setBackendErrorMessage] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings>({
+    enabled: true,
+    recipient_email: "",
+    cc_emails: [],
+  });
+  const [ccInput, setCcInput] = useState("");
+  const [savingSettings, setSavingSettings] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const clientRef = useRef<SupabaseClient | null>(null);
@@ -103,6 +120,7 @@ const Admin = () => {
       
       if (data) {
         fetchSubmissions();
+        fetchNotificationSettings();
       } else {
         setIsLoading(false);
         toast({
@@ -138,6 +156,58 @@ const Admin = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchNotificationSettings = async () => {
+    if (!clientRef.current) return;
+    try {
+      const { data, error } = await clientRef.current
+        .from("contact_notification_settings")
+        .select("enabled, recipient_email, cc_emails")
+        .eq("id", "default")
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setNotifSettings({
+          enabled: data.enabled,
+          recipient_email: data.recipient_email,
+          cc_emails: data.cc_emails ?? [],
+        });
+        setCcInput((data.cc_emails ?? []).join(", "));
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch notification settings:", error);
+    }
+  };
+
+  const saveNotificationSettings = async () => {
+    if (!clientRef.current) return;
+    setSavingSettings(true);
+    try {
+      const ccArray = ccInput
+        .split(",")
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0 && e.includes("@"));
+
+      const { error } = await clientRef.current
+        .from("contact_notification_settings")
+        .upsert({
+          id: "default",
+          enabled: notifSettings.enabled,
+          recipient_email: notifSettings.recipient_email,
+          cc_emails: ccArray,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+      setNotifSettings((prev) => ({ ...prev, cc_emails: ccArray }));
+      toast({ title: "Saved", description: "Notification settings updated." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -262,6 +332,10 @@ const Admin = () => {
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
+                <GlowButton onClick={() => setShowSettings(!showSettings)} variant="secondary">
+                  <Settings className="h-4 w-4" />
+                  Email Settings
+                </GlowButton>
                 <GlowButton onClick={fetchSubmissions} variant="secondary" disabled={isLoading}>
                   <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
                   Refresh
@@ -277,6 +351,75 @@ const Admin = () => {
               </div>
             </div>
           </RevealSection>
+
+          {/* Notification Settings Panel */}
+          {showSettings && (
+            <RevealSection delay={0.05}>
+              <GlowCard className="mb-6 p-6">
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <MailCheck className="h-5 w-5 text-primary" />
+                    <h2 className="font-heading text-lg font-bold text-foreground">Email Notification Settings</h2>
+                  </div>
+
+                  {/* Enable toggle */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setNotifSettings((p) => ({ ...p, enabled: !p.enabled }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                        notifSettings.enabled ? "bg-primary" : "bg-muted"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${
+                          notifSettings.enabled ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                    <span className="text-sm text-foreground">
+                      {notifSettings.enabled ? "Notifications enabled" : "Notifications disabled"}
+                    </span>
+                  </div>
+
+                  {/* Recipient email */}
+                  <div>
+                    <label htmlFor="recipient" className="mb-1.5 block text-sm font-medium text-foreground">
+                      Primary recipient email
+                    </label>
+                    <input
+                      id="recipient"
+                      type="email"
+                      value={notifSettings.recipient_email}
+                      onChange={(e) => setNotifSettings((p) => ({ ...p, recipient_email: e.target.value }))}
+                      className="w-full max-w-md rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="u1976739@gmail.com"
+                    />
+                  </div>
+
+                  {/* CC emails */}
+                  <div>
+                    <label htmlFor="ccEmails" className="mb-1.5 block text-sm font-medium text-foreground">
+                      CC emails (comma-separated)
+                    </label>
+                    <input
+                      id="ccEmails"
+                      type="text"
+                      value={ccInput}
+                      onChange={(e) => setCcInput(e.target.value)}
+                      className="w-full max-w-md rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="uttam.ux.design@gmail.com, other@example.com"
+                    />
+                  </div>
+
+                  <GlowButton onClick={saveNotificationSettings} variant="primary" disabled={savingSettings}>
+                    <Save className="h-4 w-4" />
+                    {savingSettings ? "Saving..." : "Save Settings"}
+                  </GlowButton>
+                </div>
+              </GlowCard>
+            </RevealSection>
+          )}
 
           <RevealSection delay={0.1}>
             {isLoading ? (

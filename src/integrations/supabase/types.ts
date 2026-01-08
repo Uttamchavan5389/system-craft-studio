@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_notification_settings: {
+        Row: {
+          cc_emails: string[] | null
+          created_at: string
+          enabled: boolean
+          id: string
+          recipient_email: string
+          updated_at: string
+        }
+        Insert: {
+          cc_emails?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          id: string
+          recipient_email: string
+          updated_at?: string
+        }
+        Update: {
+          cc_emails?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          recipient_email?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
