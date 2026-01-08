@@ -7,7 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Simple Zod-like validation
 interface ContactData {
   name: string;
   email: string;
@@ -22,7 +21,6 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
 
   const { name, email, subject, message } = data as Record<string, unknown>;
 
-  // Name validation
   if (typeof name !== "string" || name.trim().length === 0) {
     return { success: false, error: "Name is required" };
   }
@@ -30,7 +28,6 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
     return { success: false, error: "Name must be less than 100 characters" };
   }
 
-  // Email validation
   if (typeof email !== "string" || email.trim().length === 0) {
     return { success: false, error: "Email is required" };
   }
@@ -42,7 +39,6 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
     return { success: false, error: "Email must be less than 255 characters" };
   }
 
-  // Subject validation
   if (typeof subject !== "string" || subject.trim().length === 0) {
     return { success: false, error: "Subject is required" };
   }
@@ -50,7 +46,6 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
     return { success: false, error: "Subject must be less than 200 characters" };
   }
 
-  // Message validation
   if (typeof message !== "string" || message.trim().length === 0) {
     return { success: false, error: "Message is required" };
   }
@@ -58,11 +53,10 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
     return { success: false, error: "Message must be less than 5000 characters" };
   }
 
-  // Spam detection: check for common spam patterns
   const spamPatterns = [
     /\b(viagra|casino|lottery|winner|click here|free money|urgent)\b/i,
-    /(.)\1{10,}/, // repeated characters
-    /(https?:\/\/[^\s]+){5,}/, // too many URLs
+    /(.)\1{10,}/,
+    /(https?:\/\/[^\s]+){5,}/,
   ];
 
   const combinedText = `${name} ${subject} ${message}`;
@@ -84,7 +78,6 @@ function validateContact(data: unknown): { success: true; data: ContactData } | 
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -100,7 +93,6 @@ const handler = async (req: Request): Promise<Response> => {
     const body = await req.json();
     console.log("Received contact form submission");
 
-    // Validate input
     const validation = validateContact(body);
     if (!validation.success) {
       console.log("Validation failed:", validation.error);
@@ -112,7 +104,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { name, email, subject, message } = validation.data;
 
-    // Initialize Supabase client with service role for inserting
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -135,16 +126,36 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Contact submission saved to database");
 
+    // Fetch email notification settings from DB
+    const { data: settingsRows, error: settingsError } = await supabase
+      .from("contact_notification_settings")
+      .select("enabled, recipient_email, cc_emails")
+      .eq("id", "default")
+      .maybeSingle();
+
+    if (settingsError) {
+      console.error("Error fetching notification settings:", settingsError);
+    }
+
+    const emailEnabled = settingsRows?.enabled ?? true;
+    const recipientEmail = settingsRows?.recipient_email ?? "u1976739@gmail.com";
+    const ccEmails: string[] = settingsRows?.cc_emails ?? [];
+
     // Send email notification via Resend
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (resendApiKey) {
+    if (resendApiKey && emailEnabled) {
       try {
         const resend = new Resend(resendApiKey);
-        
-        // Send notification to admin
-        await resend.emails.send({
+
+        const emailPayload: {
+          from: string;
+          to: string[];
+          cc?: string[];
+          subject: string;
+          html: string;
+        } = {
           from: "Portfolio Contact <onboarding@resend.dev>",
-          to: ["uttam.ux.design@gmail.com"],
+          to: [recipientEmail],
           subject: `New Contact: ${subject}`,
           html: `
             <h2>New Contact Form Submission</h2>
@@ -158,15 +169,22 @@ const handler = async (req: Request): Promise<Response> => {
               Sent from your portfolio contact form
             </p>
           `,
-        });
+        };
 
-        console.log("Email notification sent to admin");
+        if (ccEmails.length > 0) {
+          emailPayload.cc = ccEmails;
+        }
+
+        await resend.emails.send(emailPayload);
+
+        console.log("Email notification sent to:", recipientEmail, ccEmails.length > 0 ? `CC: ${ccEmails.join(", ")}` : "");
       } catch (emailError) {
-        // Log but don't fail the request if email fails
         console.error("Failed to send email notification:", emailError);
       }
-    } else {
+    } else if (!resendApiKey) {
       console.log("RESEND_API_KEY not configured, skipping email notification");
+    } else {
+      console.log("Email notifications disabled by admin");
     }
 
     return new Response(JSON.stringify({ success: true }), {
