@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -6,6 +6,13 @@ import { GlowCard } from "@/components/ui/GlowCard";
 import { GlowButton } from "@/components/ui/GlowButton";
 import { RevealSection } from "@/components/ui/RevealSection";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Mail,
   User,
@@ -15,13 +22,13 @@ import {
   LogOut,
   RefreshCw,
   Inbox,
-  AlertCircle,
   Settings,
   Save,
   MailCheck,
+  Eye,
 } from "lucide-react";
-import type { User as SupabaseUser, Session, SupabaseClient } from "@supabase/supabase-js";
-import { getBackendClient } from "@/lib/backendClient";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactSubmission {
   id: string;
@@ -44,8 +51,6 @@ const Admin = () => {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [backendError, setBackendError] = useState(false);
-  const [backendErrorMessage, setBackendErrorMessage] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>({
     enabled: true,
@@ -54,70 +59,50 @@ const Admin = () => {
   });
   const [ccInput, setCcInput] = useState("");
   const [savingSettings, setSavingSettings] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
-    let subscription: { unsubscribe: () => void } | null = null;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
 
-    const init = async () => {
-      try {
-        const supabase = getBackendClient();
-        clientRef.current = supabase;
-
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
-          setSession(session);
-          setUser(session?.user ?? null);
-
-          if (!session?.user) {
-            navigate("/auth");
-          } else {
-            setTimeout(() => {
-              checkAdminRole(session.user.id);
-            }, 0);
-          }
-        });
-        subscription = data.subscription;
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (!session?.user) {
-          navigate("/auth");
-        } else {
+      if (!session?.user) {
+        navigate("/auth");
+      } else {
+        setTimeout(() => {
           checkAdminRole(session.user.id);
-        }
-      } catch (err) {
-        setBackendErrorMessage(err instanceof Error ? err.message : String(err));
-        console.error("Backend init error:", err);
-        setBackendError(true);
-        setIsLoading(false);
+        }, 0);
       }
-    };
+    });
 
-    init();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (!session?.user) {
+        navigate("/auth");
+      } else {
+        checkAdminRole(session.user.id);
+      }
+    });
 
     return () => {
-      subscription?.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [navigate]);
 
   const checkAdminRole = async (userId: string) => {
-    if (!clientRef.current) return;
-    
     try {
-      const { data, error } = await clientRef.current.rpc("has_role", {
+      const { data, error } = await supabase.rpc("has_role", {
         _user_id: userId,
         _role: "admin",
       });
-      
+
       if (error) throw error;
       setIsAdmin(data);
-      
+
       if (data) {
         fetchSubmissions();
         fetchNotificationSettings();
@@ -137,11 +122,9 @@ const Admin = () => {
   };
 
   const fetchSubmissions = async () => {
-    if (!clientRef.current) return;
-    
     setIsLoading(true);
     try {
-      const { data, error } = await clientRef.current
+      const { data, error } = await supabase
         .from("contact_submissions")
         .select("*")
         .order("created_at", { ascending: false });
@@ -160,9 +143,8 @@ const Admin = () => {
   };
 
   const fetchNotificationSettings = async () => {
-    if (!clientRef.current) return;
     try {
-      const { data, error } = await clientRef.current
+      const { data, error } = await supabase
         .from("contact_notification_settings")
         .select("enabled, recipient_email, cc_emails")
         .eq("id", "default")
@@ -183,7 +165,6 @@ const Admin = () => {
   };
 
   const saveNotificationSettings = async () => {
-    if (!clientRef.current) return;
     setSavingSettings(true);
     try {
       const ccArray = ccInput
@@ -191,7 +172,7 @@ const Admin = () => {
         .map((e) => e.trim())
         .filter((e) => e.length > 0 && e.includes("@"));
 
-      const { error } = await clientRef.current
+      const { error } = await supabase
         .from("contact_notification_settings")
         .upsert({
           id: "default",
@@ -212,9 +193,7 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    if (clientRef.current) {
-      await clientRef.current.auth.signOut();
-    }
+    await supabase.auth.signOut();
     navigate("/");
   };
 
@@ -247,36 +226,17 @@ const Admin = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `contact-submissions-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
-    
+
     toast({
       title: "Exported!",
       description: `${submissions.length} submissions exported to CSV`,
     });
   };
 
-  if (backendError) {
-    return (
-      <Layout>
-        <section className="flex min-h-screen items-center justify-center px-6">
-          <GlowCard className="max-w-md p-8 text-center">
-            <div className="relative z-10">
-              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-              <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
-                Backend Unavailable
-              </h2>
-              <p className="mt-2 text-muted-foreground">
-                {backendErrorMessage ??
-                  "Admin panel requires backend configuration. Please contact the site owner."}
-              </p>
-              <GlowButton href="/" variant="primary" className="mt-6">
-                Go Home
-              </GlowButton>
-            </div>
-          </GlowCard>
-        </section>
-      </Layout>
-    );
-  }
+  const truncateMessage = (message: string, maxLength = 120) => {
+    if (message.length <= maxLength) return message;
+    return message.slice(0, maxLength) + "...";
+  };
 
   if (!user) {
     return (
@@ -466,19 +426,29 @@ const Admin = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(submission.created_at).toLocaleString()}
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(submission.created_at).toLocaleString()}
+                            </div>
+                            <GlowButton
+                              onClick={() => setSelectedSubmission(submission)}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Eye className="h-4 w-4" />
+                              View
+                            </GlowButton>
                           </div>
                         </div>
-                        
+
                         <div className="mb-3 flex items-center gap-2">
                           <FileText className="h-4 w-4 text-primary" />
                           <span className="font-medium text-foreground">{submission.subject}</span>
                         </div>
-                        
+
                         <p className="whitespace-pre-wrap text-muted-foreground">
-                          {submission.message}
+                          {truncateMessage(submission.message)}
                         </p>
                       </div>
                     </GlowCard>
@@ -489,6 +459,48 @@ const Admin = () => {
           </RevealSection>
         </div>
       </section>
+
+      {/* View Details Modal */}
+      <Dialog open={!!selectedSubmission} onOpenChange={(open) => !open && setSelectedSubmission(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              {selectedSubmission?.subject}
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-4 pt-4">
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium text-foreground">{selectedSubmission?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <a
+                      href={`mailto:${selectedSubmission?.email}`}
+                      className="text-primary hover:underline"
+                    >
+                      {selectedSubmission?.email}
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {selectedSubmission && new Date(selectedSubmission.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/30 p-4">
+                  <p className="whitespace-pre-wrap text-foreground">
+                    {selectedSubmission?.message}
+                  </p>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
