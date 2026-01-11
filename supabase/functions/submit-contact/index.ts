@@ -117,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (dbError) {
-      console.error("Database insert error:", dbError);
+      console.error("Database insert error:", { message: dbError.message, code: dbError.code });
       return new Response(JSON.stringify({ error: "Failed to save submission" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -134,7 +134,7 @@ const handler = async (req: Request): Promise<Response> => {
       .maybeSingle();
 
     if (settingsError) {
-      console.error("Error fetching notification settings:", settingsError);
+      console.error("Error fetching notification settings:", { message: settingsError.message });
     }
 
     const emailEnabled = settingsRows?.enabled ?? true;
@@ -143,6 +143,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email notification via Resend
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    let emailSent = false;
+    let emailError: string | null = null;
+
     if (resendApiKey && emailEnabled) {
       try {
         const resend = new Resend(resendApiKey);
@@ -175,22 +178,32 @@ const handler = async (req: Request): Promise<Response> => {
           emailPayload.cc = ccEmails;
         }
 
-        await resend.emails.send(emailPayload);
-
-        console.log("Email notification sent to:", recipientEmail, ccEmails.length > 0 ? `CC: ${ccEmails.join(", ")}` : "");
-      } catch (emailError) {
+        const emailResponse = await resend.emails.send(emailPayload);
+        emailSent = true;
+        console.log("Email notification sent to:", recipientEmail, ccEmails.length > 0 ? `CC: ${ccEmails.join(", ")}` : "", emailResponse);
+      } catch (err) {
+        emailError = err instanceof Error ? err.message : String(err);
         console.error("Failed to send email notification:", emailError);
       }
     } else if (!resendApiKey) {
+      emailError = "RESEND_API_KEY not configured";
       console.log("RESEND_API_KEY not configured, skipping email notification");
     } else {
+      emailError = "Email notifications disabled by admin";
       console.log("Email notifications disabled by admin");
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        emailSent,
+        emailError: emailSent ? null : emailError,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
   } catch (error) {
     console.error("Error in submit-contact function:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {

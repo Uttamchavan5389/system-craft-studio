@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -7,10 +7,9 @@ import { GlowButton } from "@/components/ui/GlowButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, LogIn, UserPlus, AlertCircle } from "lucide-react";
+import { Mail, Lock, LogIn, UserPlus } from "lucide-react";
 import { z } from "zod";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { getBackendClient } from "@/lib/backendClient";
+import { supabase } from "@/integrations/supabase/client";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -23,61 +22,36 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [backendError, setBackendError] = useState(false);
-  const [backendErrorMessage, setBackendErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
-    let subscription: { unsubscribe: () => void } | null = null;
-
-    const init = async () => {
-      try {
-        const supabase = getBackendClient();
-        clientRef.current = supabase;
-
-        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (session?.user) {
-            // Defer backend calls to avoid deadlocks in auth callback
-            setTimeout(() => {
-              (async () => {
-                try {
-                  await supabase.rpc("bootstrap_admin");
-                } catch {
-                  // ignore
-                }
-                navigate("/admin");
-              })();
-            }, 0);
-          }
-        });
-        subscription = data.subscription;
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          // If bootstrap fails (e.g., missing function on a different backend), don't block login.
-          try {
-            await supabase.rpc("bootstrap_admin");
-          } catch {
-            // ignore
-          }
-          navigate("/admin");
-        }
-      } catch (err) {
-        setBackendErrorMessage(err instanceof Error ? err.message : String(err));
-        console.error("Backend init error:", err);
-        setBackendError(true);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Defer backend calls to avoid deadlocks in auth callback
+        setTimeout(() => {
+          (async () => {
+            try {
+              await supabase.rpc("bootstrap_admin");
+            } catch {
+              // ignore
+            }
+            navigate("/admin");
+          })();
+        }, 0);
       }
-    };
+    });
 
-    init();
+    // Check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        Promise.resolve(supabase.rpc("bootstrap_admin")).catch(() => {});
+        navigate("/admin");
+      }
+    });
 
     return () => {
-      subscription?.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [navigate]);
 
@@ -96,13 +70,7 @@ const Auth = () => {
       return;
     }
 
-    if (!clientRef.current) {
-      toast({ title: "Error", description: "Backend not available", variant: "destructive" });
-      return;
-    }
-
     setIsLoading(true);
-    const supabase = clientRef.current;
 
     try {
       if (isLogin) {
@@ -132,30 +100,6 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-
-  if (backendError) {
-    return (
-      <Layout>
-        <section className="flex min-h-screen items-center justify-center px-6 pt-24 pb-16">
-          <GlowCard className="max-w-md p-8 text-center">
-            <div className="relative z-10">
-              <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-              <h2 className="mt-4 font-heading text-2xl font-bold text-foreground">
-                Backend Unavailable
-              </h2>
-              <p className="mt-2 text-muted-foreground">
-                {backendErrorMessage ??
-                  "Authentication requires backend configuration. Please contact the site owner."}
-              </p>
-              <GlowButton href="/" variant="primary" className="mt-6">
-                Go Home
-              </GlowButton>
-            </div>
-          </GlowCard>
-        </section>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
